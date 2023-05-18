@@ -46,7 +46,7 @@ void strip(char *s)
 	*p2 = '\0';
 }
 
-int parser_of_read(char *mas_for_read, int count, FILE *prog, int ret)
+int parser_of_read(char *mas_for_read, int count, FILE *prog)
 {
 	int coincidence = 0;
 	char read[] = "read";
@@ -63,8 +63,7 @@ int parser_of_read(char *mas_for_read, int count, FILE *prog, int ret)
 
 	if(coincidence == 4)
 	{
-		ret++;
-		fputs("double ", prog);
+		fputs("float ", prog);
 		count += 4;
 		while(mas_for_read[count] == ' ')
 		{
@@ -73,7 +72,7 @@ int parser_of_read(char *mas_for_read, int count, FILE *prog, int ret)
 		}
 		char *name = malloc(SIZE_OF_STRING);
 		int count_name = 0;
-		while(mas_for_read[count] != ' ')
+		while(mas_for_read[count] != 0)
 		{
 			name[count_name] = mas_for_read[count];
 			count_name++;
@@ -82,15 +81,17 @@ int parser_of_read(char *mas_for_read, int count, FILE *prog, int ret)
 		strip(name);
 		fputs(name, prog);
 		fputs(";\nscanf(\"%f\", ", prog);
+		fputs("&", prog);
 		fputs(name, prog);
 		fputs(");\n", prog);
 		free(name);
+		return 1;
 	}
 	return 0;
 
 }
 
-int parser_start_while(char *mas_for_read, int count, FILE* prog, int ret)
+int parser_start_while(char *mas_for_read, int count, FILE* prog)
 {
 	int coincidence = 0;
 	int in_place_count = count;
@@ -105,7 +106,6 @@ int parser_start_while(char *mas_for_read, int count, FILE* prog, int ret)
 	}
 	if(coincidence == 5)
 	{
-		ret++;
 		fputs("while(", prog);
 		count +=5;
 
@@ -132,12 +132,14 @@ int parser_start_while(char *mas_for_read, int count, FILE* prog, int ret)
 		fputs(")\n", prog);
 		fputs("{\n", prog);
 		free(condition);
+		return 1;
 	}
 	return 0;	
 
 
 }
-int parser_end_while(char *mas_for_read, int count, FILE* prog, int ret)
+
+int parser_end_while(char *mas_for_read, int count, FILE* prog)
 {
 	int coincidence = 0;
 	int in_place_count = count;
@@ -152,14 +154,14 @@ int parser_end_while(char *mas_for_read, int count, FILE* prog, int ret)
 	}
 	if(coincidence == 4)
 	{
-		ret++;
 		fputs("}\n", prog);
 		count +=4;
+		return 1;
 	}
 	return 0;
 }
 
-int parser_start_if(char *mas_for_read, int count, FILE* prog, int ret)
+int parser_start_if(char *mas_for_read, int count, FILE* prog)
 {
 	int coincidence = 0;
 	int in_place_count = count;
@@ -174,7 +176,6 @@ int parser_start_if(char *mas_for_read, int count, FILE* prog, int ret)
 	}
 	if(coincidence == 2)
 	{
-		ret++;
 		fputs("if(", prog);
 		count +=3;
 		while(mas_for_read[count]==' ')
@@ -199,12 +200,13 @@ int parser_start_if(char *mas_for_read, int count, FILE* prog, int ret)
 		fputs(")\n", prog);
 		fputs("{\n", prog);
 		free(condition);
+		return 1;
 	}
 
-return 0;
+	return 0;
 }
 
-int parser_end_if(char *mas_for_read, int count, FILE* prog, int ret)
+int parser_end_if(char *mas_for_read, int count, FILE* prog)
 {
 	int coincidence = 0;
 	int in_place_count = count;
@@ -219,18 +221,54 @@ int parser_end_if(char *mas_for_read, int count, FILE* prog, int ret)
 	}
 	if(coincidence == 2)
 	{
-		ret++;
 		fputs("}\n", prog);
 		count +=2;
+		return 1;
 	}
 	return 0;
 }
 
-void parser_of_operation(char *mas_for_read, int count, FILE* prog, int ret)
+int parser_init(char *mas_for_read, int count, FILE* prog)
 {
-	if(ret<1)
+	int coincidence = 0;
+	int in_place_count = count;
+	char read[] = "init";
+	for(int i = 0; i<4;i++)
 	{
+		if(read[i] == mas_for_read[in_place_count])
+		{
+			coincidence++;
+		}
+		in_place_count++;
+	}
+	if(coincidence == 4)
+	{
+		fputs("double ", prog);
+		count +=4;
+		char *name = malloc(SIZE_OF_STRING);
+		int count_name = 0;
+		while(mas_for_read[count] != 0)
+		{
+			name[count_name] = mas_for_read[count];
+			count_name++;
+			count++;
+		}
+		strip(name);
+		fputs(name, prog);
+		fputs(";\n", prog);
+		free(name);
+		return 1;
+	}
+	return 0;
+}
+
+void parser_of_operation(char *mas_for_read, int count, FILE* prog, int for_if)
+{
+	if(for_if==0)
+	{
+		strip(mas_for_read);
 		fputs(mas_for_read, prog);
+		fputs(";\n", prog);
 	}
 }
 
@@ -238,20 +276,28 @@ void parser(char *mas_for_read, FILE *prog)
 {
 
 	int count = 0;
-
 	while(mas_for_read[count] == ' ')
 	{
 		count++;
 	}
 
-	int ret = 0;
-	parser_of_read(mas_for_read, count, prog, ret);
-	parser_start_while(mas_for_read, count, prog, ret);
-	parser_end_while(mas_for_read, count, prog, ret);
-	parser_start_if(mas_for_read, count, prog, ret);
-	parser_end_if(mas_for_read, count, prog, ret);
-	parser_of_operation(mas_for_read, count, prog, ret);
-	
+	int for_if = 0;
+	int for_for_if;
+	for_for_if = parser_of_read(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
+	for_for_if = parser_start_while(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
+	for_for_if = parser_end_while(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
+	for_for_if = parser_start_if(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
+	for_for_if = parser_end_if(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
+	for_for_if = parser_init(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
+	parser_of_operation(mas_for_read, count, prog, for_if);
+
+
 }
 
 void work_with_files()
@@ -273,6 +319,7 @@ void work_with_files()
 		parser(mas_for_read, prog);
 		free(mas_for_read);
 	}
+	fputs("return 0;\n}\n", prog);
 
 	fclose(script);
 	fclose(prog);

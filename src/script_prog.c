@@ -1,26 +1,21 @@
 #include<stdio.h>
 int main()
 {
-double n;
-scanf("%f", n);
-read n
-double min;
-scanf("%f", min);
-read min
-i=0
+float n;
+scanf("%f", &n);
+float min;
+scanf("%f", &min);
+double  i=0;
 while(i < n )
 {
-while i < n do
-double x;
-scanf("%f", x);
- read x
+float x;
+scanf("%f", &x);
 if(min > x )
 {
- if min > x then
- min = x
+ min = x;
 }
- fi
- i = i + 1
+ i = i + 1;
 }
-done
-נתלÿ
+נֶÿ;
+return 0;
+}
