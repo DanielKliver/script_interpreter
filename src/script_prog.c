@@ -16,6 +16,6 @@ if(min > x )
 }
  i = i + 1;
 }
-ðÆÿ;
+printf("%f",  i);
 return 0;
 }

@@ -262,6 +262,40 @@ int parser_init(char *mas_for_read, int count, FILE* prog)
 	return 0;
 }
 
+int parser_print(char *mas_for_read, int count, FILE* prog)
+{
+	int coincidence = 0;
+	int in_place_count = count;
+	char read[] = "print";
+	for(int i = 0; i<5;i++)
+	{
+		if(read[i] == mas_for_read[in_place_count])
+		{
+			coincidence++;
+		}
+		in_place_count++;
+	}
+	if(coincidence == 5)
+	{
+		fputs("printf(\"%f\", ", prog);
+		count +=5;
+		char *name = malloc(SIZE_OF_STRING);
+		int count_name = 0;
+		while(mas_for_read[count] != 0)
+		{
+			name[count_name] = mas_for_read[count];
+			count_name++;
+			count++;
+		}
+		strip(name);
+		fputs(name, prog);
+		fputs(");\n", prog);
+		free(name);
+		return 1;
+	}
+	return 0;
+}
+
 void parser_of_operation(char *mas_for_read, int count, FILE* prog, int for_if)
 {
 	if(for_if==0)
@@ -295,6 +329,8 @@ void parser(char *mas_for_read, FILE *prog)
 	for_if = for_if+for_for_if;
 	for_for_if = parser_init(mas_for_read, count, prog);
 	for_if = for_if+for_for_if;
+	for_for_if = parser_print(mas_for_read, count, prog);
+	for_if = for_if+for_for_if;
 	parser_of_operation(mas_for_read, count, prog, for_if);
 
 
@@ -312,7 +348,10 @@ void work_with_files()
 
 	fputs("#include<stdio.h>\nint main()\n{\n", prog);
 
-	while(feof(script)==0)
+	fseek(script, 0, SEEK_END);
+	size_t end_of_script = ftell(script);
+	fseek(script, 0, SEEK_SET);
+	while(ftell(script)<end_of_script)
 	{
 		char *mas_for_read = malloc(SIZE_OF_STRING);
 		fgets(mas_for_read, SIZE_OF_STRING, script);
