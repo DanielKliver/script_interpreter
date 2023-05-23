@@ -1,50 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <script_to_c_maker.h>
 
-
-enum 
-{
-	SIZE_OF_STRING = 100
-};
-
-int errors(int number_of_error)
-{
-	if(!number_of_error)
-	{
-		printf("Error of error number!\n");
-		return -1;
-	}
-	switch(number_of_error)
-	{
-		case 1:
-			printf("File opening error!\n");
-			return -1;
-			break;
-		case 2:
-			printf("Error condition of whle!\n");
-			return -1;
-			break;
-		default:
-			printf("Error of error number!\n");
-			return -1;
-			break;
-	}
-	return -1;
-}
-
-void strip(char *s)
-{
-	char *p2 = s;
-	while(*s != '\0') {
-		if(*s != '\t' && *s != '\n') {
-			*p2++ = *s++;
-		} else {
-			++s;
-		}
-	}
-	*p2 = '\0';
-}
 
 int parser_of_read(char *mas_for_read, int count, FILE *prog)
 {
@@ -334,45 +292,4 @@ void parser(char *mas_for_read, FILE *prog)
 	parser_of_operation(mas_for_read, count, prog, for_if);
 
 
-}
-
-void work_with_files(char *file_name)
-{
-	//FILE *script = fopen("script.txt", "r");
-	FILE *script = fopen(file_name, "r");
-	FILE *prog = fopen("script_prog.c", "w");
-
-	if(!script||!prog)
-	{
-		errors(1);
-	}
-
-	fputs("#include<stdio.h>\nint main()\n{\n", prog);
-
-	fseek(script, 0, SEEK_END);
-	size_t end_of_script = ftell(script);
-	fseek(script, 0, SEEK_SET);
-	while(ftell(script)<end_of_script)
-	{
-		char *mas_for_read = malloc(SIZE_OF_STRING);
-		fgets(mas_for_read, SIZE_OF_STRING, script);
-		parser(mas_for_read, prog);
-		free(mas_for_read);
-	}
-	fputs("return 0;\n}\n", prog);
-
-	fclose(script);
-	fclose(prog);
-}
-
-int main(int argc, char *argv[])
-{
-	if(argc!=2)
-	{
-		printf("Вы не ввели имя файла.\n");
-		return 0;
-	}
-	char *file_name = argv[1];
-	work_with_files(file_name);
-	return 0;
 }

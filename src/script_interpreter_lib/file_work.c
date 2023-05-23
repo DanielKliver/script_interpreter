@@ -41,9 +41,9 @@ void strip(char *s)
 	*p2 = '\0';
 }
 
-void work_with_files()
+void work_with_files(char* file_name)
 {
-	FILE *script = fopen("script.txt", "r");
+	FILE *script = fopen(file_name, "r");
 	FILE *prog = fopen("script_prog.c", "w");
 
 	if(!script||!prog)
