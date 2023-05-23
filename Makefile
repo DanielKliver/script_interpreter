@@ -1,7 +1,7 @@
-GET = ./bin/MyProject
+TARGET = ./bin/MyProject
 CC = gcc
 
-CFLAGS = -Wall 
+CFLAGS = -Wall
 
 PATH_INCLUDE = -Isrc
 
@@ -14,10 +14,10 @@ OBJ = $(patsubst $(PREF_SRC)%.c, $(PREF_OBJ)%.o, $(SRC))
 all: $(TARGET)
 
 $(PREF_OBJ)%.o : $(PREF_SRC)%.c
-			$(CC) -c $(CFLAGS) $(PATH_INCLUDE) -o $@ $<
+	                        $(CC) -c $(CFLAGS) $(PATH_INCLUDE) -o $@ $<
 
-$(TARGET) : $(OBJMAIN) $(OBJ) 
-			$(CC) $(CFLAGS) -o $(TARGET) $(OBJMAIN) $(OBJ)
+$(TARGET) : $(OBJ)
+	                        $(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
 
 clean :
-			rm $(TARGET) $(PREF_OBJ)*.o $(PREF_OBJMAIN)*.o
+	                        rm $(TARGET) $(PREF_OBJ)*.o

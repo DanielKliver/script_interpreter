@@ -16,6 +16,6 @@ if(min > x )
 }
  i = i + 1;
 }
-printf("%f",  i);
+printf("%f\n",  i);
 return 0;
 }
